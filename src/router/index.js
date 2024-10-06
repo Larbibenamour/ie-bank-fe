@@ -1,33 +1,27 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
-import Home from '../components/Home.vue'; // Import the Home component
-import Skull from '../components/Skull.vue';
-import AppAccounts from '../components/AppAccounts.vue';
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import Home from '../components/Home.vue' // Import Home Component
+import AppAccounts from '../components/AppAccounts.vue' // Account creation component
 
-Vue.use(VueRouter);
+Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/', // Route for the root URL
+    path: '/', // Route for Home Page
     name: 'Home',
-    component: Home, // Render the Home component at '/'
-  },
-  {
-    path: '/skull',
-    name: 'Skull',
-    component: Skull,
+    component: Home
   },
   {
     path: '/accounts',
     name: 'AppAccounts',
-    component: AppAccounts,
-  },
-];
+    component: AppAccounts
+  }
+]
 
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
-  routes,
-});
+  routes
+})
 
-export default router;
+export default router
