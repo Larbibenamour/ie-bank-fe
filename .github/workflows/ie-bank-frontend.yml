@@ -6,11 +6,14 @@ name: ie-bank-frontend
 on:
   push:
     branches:
+      - dev
+  pull_request:
+    branches:
       - main
   workflow_dispatch:
 
 env:
-  FRONTEND_WEBAPP_DEV: aguadamillas-fe-dev
+  FRONTEND_WEBAPP_DEV: larbibenamour-fe-dev 
 
 jobs:
   build:
@@ -28,7 +31,7 @@ jobs:
       - name: npm install, build, and test
         run: |
           npm install
-          npm run build -- --mode development --dest dist-dev ## this command will build the vue.js app using .env.development variables into the dest-div/ folder
+          npm run build -- --mode development --dest dist-dev
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
