@@ -27,6 +27,8 @@
                 <th scope="col">Account Currency</th>
                 <th scope="col">Account Status</th>
                 <th scope="col">Actions</th>
+                <th scope="col">Country</th>
+
               </tr>
             </thead>
             <tbody>
@@ -35,7 +37,7 @@
                 <td>{{ account.account_number }}</td>
                 <td>{{ account.balance }}</td>
                 <td>{{ account.currency }}</td>
-                <td>
+                <td>{{ account.country }}</td>
                   <span
                     v-if="account.status == 'Active'"
                     class="badge badge-success"
