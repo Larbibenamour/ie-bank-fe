@@ -6,11 +6,10 @@
           <h1>Accounts</h1>
           <hr />
           <br />
-          <!-- Allert Message -->
-          <b-alert v-if="showMessage" variant="success" show>{{
-            message
-          }}</b-alert>
-          <!-- b-alert v-if="error" variant="danger" show>{{ error }}</b-alert-->
+          <!-- Alert Message -->
+          <b-alert v-if="showMessage" variant="success" show>
+            {{ message }}
+          </b-alert>
 
           <button
             type="button"
@@ -26,6 +25,7 @@
                 <th scope="col">Account Name</th>
                 <th scope="col">Account Number</th>
                 <th scope="col">Account Balance</th>
+                <th scope="col">Account Country</th>
                 <th scope="col">Account Currency</th>
                 <th scope="col">Account Status</th>
                 <th scope="col">Actions</th>
@@ -36,16 +36,18 @@
                 <td>{{ account.name }}</td>
                 <td>{{ account.account_number }}</td>
                 <td>{{ account.balance }}</td>
+                <td>{{ account.country }}</td>
                 <td>{{ account.currency }}</td>
                 <td>
                   <span
-                    v-if="account.status == 'Active'"
+                    v-if="account.status === 'Active'"
                     class="badge badge-success"
-                    >{{ account.status }}</span
                   >
-                  <span v-else class="badge badge-danger">{{
-                    account.status
-                  }}</span>
+                    {{ account.status }}
+                  </span>
+                  <span v-else class="badge badge-danger">
+                    {{ account.status }}
+                  </span>
                 </td>
                 <td>
                   <div class="btn-group" role="group">
@@ -74,6 +76,7 @@
           </footer>
         </div>
       </div>
+      <!-- Modal for Create Account -->
       <b-modal
         ref="addAccountModal"
         id="account-modal"
@@ -93,8 +96,7 @@
               v-model="createAccountForm.name"
               placeholder="Account Name"
               required
-            >
-            </b-form-input>
+            ></b-form-input>
           </b-form-group>
           <b-form-group
             id="form-currency-group"
@@ -107,15 +109,25 @@
               v-model="createAccountForm.currency"
               placeholder="$ or €"
               required
-            >
-            </b-form-input>
+            ></b-form-input>
           </b-form-group>
-
+          <b-form-group
+            id="form-country-group"
+            label="Country:"
+            label-for="form-country-input"
+          >
+            <b-form-input
+              id="form-country-input"
+              type="text"
+              v-model="createAccountForm.country"
+              placeholder="Country"
+              required
+            ></b-form-input>
+          </b-form-group>
           <b-button type="submit" variant="outline-info">Submit</b-button>
         </b-form>
       </b-modal>
-      <!-- End of Modal for Create Account-->
-      <!-- Start of Modal for Edit Account-->
+      <!-- Modal for Edit Account -->
       <b-modal
         ref="editAccountModal"
         id="edit-account-modal"
@@ -135,19 +147,31 @@
               v-model="editAccountForm.name"
               placeholder="Account Name"
               required
-            >
-            </b-form-input>
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group
+            id="form-edit-country-group"
+            label="Country:"
+            label-for="form-edit-country-input"
+          >
+            <b-form-input
+              id="form-edit-country-input"
+              type="text"
+              v-model="editAccountForm.country"
+              placeholder="Country"
+              required
+            ></b-form-input>
           </b-form-group>
           <b-button type="submit" variant="outline-info">Update</b-button>
         </b-form>
       </b-modal>
-      <!-- End of Modal for Edit Account-->
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+
 export default {
   name: "AppAccounts",
   data() {
@@ -156,148 +180,133 @@ export default {
       createAccountForm: {
         name: "",
         currency: "",
+        country: "",
       },
       editAccountForm: {
         id: "",
         name: "",
+        country: "",
       },
       showMessage: false,
       message: "",
     };
   },
   methods: {
-    /***************************************************
-     * RESTful requests
-     ***************************************************/
-
-    //GET function
+    // Fetch all accounts
     RESTgetAccounts() {
       const path = `${process.env.VUE_APP_ROOT_URL}/accounts`;
+      console.log("GET path:", path); // Debugging API path
       axios
         .get(path)
         .then((response) => {
+          console.log("Accounts fetched:", response.data.accounts); // Debugging fetched accounts
           this.accounts = response.data.accounts;
         })
         .catch((error) => {
-          console.error(error);
+          console.error("Error fetching accounts:", error); // More descriptive error
         });
     },
 
-    // POST function
+    // Create a new account
     RESTcreateAccount(payload) {
       const path = `${process.env.VUE_APP_ROOT_URL}/accounts`;
+      console.log("POST path:", path); // Debugging API path
       axios
         .post(path, payload)
-        .then((response) => {
+        .then(() => {
           this.RESTgetAccounts();
-          // For message alert
-          this.message = "Account Created succesfully!";
-          // To actually show the message
+          this.message = "Account Created successfully!";
           this.showMessage = true;
-          // To hide the message after 3 seconds
           setTimeout(() => {
             this.showMessage = false;
           }, 3000);
         })
         .catch((error) => {
-          console.error(error);
-          this.RESTgetAccounts();
+          console.error("Error creating account:", error); // More descriptive error
         });
     },
 
-    // Update function
+    // Update an account
     RESTupdateAccount(payload, accountId) {
       const path = `${process.env.VUE_APP_ROOT_URL}/accounts/${accountId}`;
+      console.log("PUT path:", path); // Debugging API path
       axios
         .put(path, payload)
-        .then((response) => {
+        .then(() => {
           this.RESTgetAccounts();
-          // For message alert
-          this.message = "Account Updated succesfully!";
-          // To actually show the message
+          this.message = "Account Updated successfully!";
           this.showMessage = true;
-          // To hide the message after 3 seconds
           setTimeout(() => {
             this.showMessage = false;
           }, 3000);
         })
         .catch((error) => {
-          console.error(error);
-          this.RESTgetAccounts();
+          console.error("Error updating account:", error); // More descriptive error
         });
     },
 
-    // Delete account
+    // Delete an account
     RESTdeleteAccount(accountId) {
       const path = `${process.env.VUE_APP_ROOT_URL}/accounts/${accountId}`;
+      console.log("DELETE path:", path); // Debugging API path
       axios
         .delete(path)
-        .then((response) => {
+        .then(() => {
           this.RESTgetAccounts();
-          // For message alert
-          this.message = "Account Deleted succesfully!";
-          // To actually show the message
+          this.message = "Account Deleted successfully!";
           this.showMessage = true;
-          // To hide the message after 3 seconds
           setTimeout(() => {
             this.showMessage = false;
           }, 3000);
         })
         .catch((error) => {
-          console.error(error);
-          this.RESTgetAccounts();
+          console.error("Error deleting account:", error); // More descriptive error
         });
     },
 
-    /***************************************************
-     * FORM MANAGEMENT
-     * *************************************************/
-
-    // Initialize forms empty
+    // Initialize the forms
     initForm() {
-      this.createAccountForm.name = "";
-      this.createAccountForm.currency = "";
-      this.editAccountForm.id = "";
-      this.editAccountForm.name = "";
+      this.createAccountForm = {
+        name: "",
+        currency: "",
+        country: "",
+      };
+      this.editAccountForm = {
+        id: "",
+        name: "",
+        country: "",
+      };
     },
 
-    // Handle submit event for create account
+    // Handle create account form submission
     onSubmit(e) {
-      e.preventDefault(); //prevent default form submit form the browser
-      this.$refs.addAccountModal.hide(); //hide the modal when submitted
-      const payload = {
-        name: this.createAccountForm.name,
-        currency: this.createAccountForm.currency,
-      };
+      e.preventDefault();
+      this.$refs.addAccountModal.hide();
+      const payload = { ...this.createAccountForm };
       this.RESTcreateAccount(payload);
       this.initForm();
     },
 
-    // Handle submit event for edit account
+    // Handle edit account form submission
     onSubmitUpdate(e) {
-      e.preventDefault(); //prevent default form submit form the browser
-      this.$refs.editAccountModal.hide(); //hide the modal when submitted
-      const payload = {
-        name: this.editAccountForm.name,
-      };
+      e.preventDefault();
+      this.$refs.editAccountModal.hide();
+      const payload = { name: this.editAccountForm.name, country: this.editAccountForm.country };
       this.RESTupdateAccount(payload, this.editAccountForm.id);
       this.initForm();
     },
 
-    // Handle edit button
+    // Pre-fill form for editing
     editAccount(account) {
-      this.editAccountForm = account;
+      this.editAccountForm = { ...account };
     },
 
-    // Handle Delete button
+    // Delete account handler
     deleteAccount(account) {
       this.RESTdeleteAccount(account.id);
     },
   },
 
-  /***************************************************
-   * LIFECYClE HOOKS
-   ***************************************************/
   created() {
     this.RESTgetAccounts();
   },
